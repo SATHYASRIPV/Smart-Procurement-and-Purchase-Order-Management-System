@@ -13,7 +13,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class EnterpriseProcurementSystemApplication {
 
 	public static void main(String[] args) {
-		Dotenv denv = Dotenv.configure().directory("./backend").load();
+		Dotenv denv = Dotenv.configure().directory("./backend").ignoreIfMalformed().ignoreIfMissing().load();
 		denv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 		SpringApplication.run(EnterpriseProcurementSystemApplication.class, args);
 	}
