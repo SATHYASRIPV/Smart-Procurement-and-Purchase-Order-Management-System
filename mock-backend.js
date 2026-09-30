@@ -486,5 +486,5 @@ app.use((req, res) => {
 });
 
 app.listen(8080, () => {
-    console.log("Stateful mock backend running on http://localhost:8080");
+    console.log("Stateful mock backend running on https://smart-procurement-and-purchase-order.onrender.com");
 });
