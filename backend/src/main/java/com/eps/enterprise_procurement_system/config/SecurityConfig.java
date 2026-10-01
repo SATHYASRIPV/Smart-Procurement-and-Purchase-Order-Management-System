@@ -36,13 +36,25 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
 
         httpSecurity
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests( auth ->
-                        auth.requestMatchers("/auth/**",  "/error", "/api/chat/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/depts/**").permitAll()
-                                .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth ->
+                    auth.requestMatchers("/auth/**", "/error", "/api/chat/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/depts/**").permitAll()
+                            .anyRequest().authenticated())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .formLogin(form -> form.disable())
+            .logout(logout -> logout.disable())
+            .sessionManagement(session -> session.sessionFixation().none());
+
+        // httpSecurity
+        //         .csrf(csrf -> csrf.disable())
+        //         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        //         .authorizeHttpRequests( auth ->
+        //                 auth.requestMatchers("/auth/**",  "/error", "/api/chat/**").permitAll()
+        //                         .requestMatchers(HttpMethod.GET, "/depts/**").permitAll()
+        //                         .anyRequest().authenticated())
+        //         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
@@ -72,6 +84,7 @@ public class SecurityConfig {
 
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
