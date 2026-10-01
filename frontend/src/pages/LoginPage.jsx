@@ -63,7 +63,7 @@ export default function LoginPage() {
           border: '1px solid #BBF7D0',
         },
       });
-
+       window.location.reload();
        switch (response.role) {
        case "ADMIN":
         navigate("/admin");
