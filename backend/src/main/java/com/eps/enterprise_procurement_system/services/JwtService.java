@@ -29,7 +29,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateAceessToken(User user){
+    public String generateAccessToken(User user){
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("email",user.getEmail())

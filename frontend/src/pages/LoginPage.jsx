@@ -52,6 +52,12 @@ export default function LoginPage() {
         role: response.role,
         fullName: response.fullName,
       };
+
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('fullName', fullName);
+      localStorage.setItem('role', role);
      
       login(userData, accessToken,  refreshToken); 
 

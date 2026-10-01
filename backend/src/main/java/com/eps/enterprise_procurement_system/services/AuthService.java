@@ -76,7 +76,7 @@ public class AuthService {
        
         RegisterResponseDTO responseDTO =
                  RegisterResponseDTO.builder()
-                        .accesToken(jwtService.generateAceessToken(saved))
+                        .accesToken(jwtService.generateAccessToken(saved))
                         .refreshToken(jwtService.generateRefreshToken(saved))
                         .message("Register Succesfully")
                         .build();
@@ -97,12 +97,16 @@ public class AuthService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your account is deactivated by admin");
             }
 
+            String accessToken = jwtService.generateAccessToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
+
             session.setAttribute("userId", user.getId());
             session.setAttribute("userEmail", user.getEmail());
+            session.setAttribute("accessToken", accessToken);
 
             LoginResponseDTO responseDTO = LoginResponseDTO.builder()
-                .accessToken(jwtService.generateAceessToken(user))
-                .refreshToken(jwtService.generateRefreshToken(user))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                     .message("Login Successful")
                     .role(user.getRole())
                     .fullName(user.getFullName())
@@ -124,9 +128,12 @@ public class AuthService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your account is deactivated by admin");
             }
 
+            String newAccessToken = jwtService.generateAccessToken(user);
+            String newRefreshToken = jwtService.generateRefreshToken(user);
+
             return LoginResponseDTO.builder()
-                    .accessToken(jwtService.generateAceessToken(user))
-                    .refreshToken(jwtService.generateRefreshToken(user))
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken)
                     .message("Token refreshed successfully")
                     .role(user.getRole())
                     .fullName(user.getFullName())
