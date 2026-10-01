@@ -14,6 +14,7 @@ import com.eps.enterprise_procurement_system.repositories.ProductCategoryRepo;
 import com.eps.enterprise_procurement_system.repositories.SupplierRepo;
 import com.eps.enterprise_procurement_system.repositories.UserRepository;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 import org.modelmapper.ModelMapper;
@@ -84,7 +85,7 @@ public class AuthService {
 
     }
 
-    public  LoginResponseDTO login(LoginRequestDTO dto) {
+    public  LoginResponseDTO login(LoginRequestDTO dto, HttpSession session) {
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -95,6 +96,10 @@ public class AuthService {
             if (user.getIsActive() != null && !user.getIsActive()) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your account is deactivated by admin");
             }
+
+            session.setAttribute("userId", user.getId());
+            session.setAttribute("userEmail", user.getEmail());
+
             LoginResponseDTO responseDTO = LoginResponseDTO.builder()
                 .accessToken(jwtService.generateAceessToken(user))
                 .refreshToken(jwtService.generateRefreshToken(user))

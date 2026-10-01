@@ -6,6 +6,8 @@ import com.eps.enterprise_procurement_system.dto.LoginResponseDTO;
 import com.eps.enterprise_procurement_system.dto.RegisterRequestDTO;
 import com.eps.enterprise_procurement_system.dto.RegisterResponseDTO;
 import com.eps.enterprise_procurement_system.services.AuthService;
+
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +31,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public  ResponseEntity<ApiResponse<LoginResponseDTO>> login(@Valid @RequestBody LoginRequestDTO dto){
+    public  ResponseEntity<ApiResponse<LoginResponseDTO>> login(@Valid @RequestBody LoginRequestDTO dto, HttpSession session){
 
-        LoginResponseDTO s = authService.login(dto);
+        LoginResponseDTO s = authService.login(dto, session);
 
         return ResponseEntity.ok(new ApiResponse<>(s));
     }
