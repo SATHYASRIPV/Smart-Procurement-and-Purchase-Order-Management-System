@@ -1,224 +1,140 @@
-// import axios from "axios";
+import axios from "axios";
 
-// const BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://smart-procurement-and-purchase-order.onrender.com";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://smart-procurement-and-purchase-order.onrender.com";
 
-// let isRefreshing = false;
-// let failedQueue = [];
-
- 
-// const api = axios.create({
-//   baseURL: BASE_URL,
-//   timeout: 60000,
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-//   withCredentials: true,
-// });
+let isRefreshing = false;
+let failedQueue = [];  
 
  
-// const processQueue = (error, token = null) => {
-//   failedQueue.forEach((promise) => {
-//     if (error) {
-//       promise.reject(error);
-//     } else {
-//       promise.resolve(token);
-//     }
-//   });
-
-//   failedQueue = [];
-// };
-
-  
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("accessToken");
-    
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
-
- 
-// api.interceptors.response.use(
-//   (response) => response,
-
-//   async (error) => {
-//     const originalRequest = error.config;
- 
-//     if (originalRequest.url.includes("/auth/refresh")) {
-//       return Promise.reject(error);
-//     }
-
-//     if (
-//       error.response?.status === 401 &&
-//       !originalRequest._retry
-//     ) {
-
-       
-//       if (isRefreshing) {
-//         return new Promise((resolve, reject) => {
-//           failedQueue.push({ resolve, reject });
-//         }).then((token) => {
-//           originalRequest.headers.Authorization =
-//             "Bearer " + token;
-
-//           return api(originalRequest);
-//         });
-//       }
-
-//       originalRequest._retry = true;
-//       isRefreshing = true;
-
-//       try {
-
-//         const refreshToken =
-//           localStorage.getItem("refreshToken");
-
-//         if (!refreshToken) {
-//           throw new Error("Refresh token missing");
-//         }
-
-       
-//         const response = await axios.post(
-//           `${BASE_URL}/auth/refresh`,
-//           {
-//             refreshToken,
-//           }
-//         );
-
-//         const tokens = response.data.data;
-
-         
-//         localStorage.setItem(
-//           "accessToken",
-//           tokens.accessToken
-//         );
-
-//         if (tokens.refreshToken) {
-//           localStorage.setItem(
-//             "refreshToken",
-//             tokens.refreshToken
-//           );
-//         }
-
-        
-//         processQueue(null, tokens.accessToken);
-
-         
-//         originalRequest.headers.Authorization =
-//           "Bearer " + tokens.accessToken;
-
-//         return api(originalRequest);
-
-//       } catch (err) {
-
-//         processQueue(err, null);
-
-        
-//         localStorage.removeItem("accessToken");
-//         localStorage.removeItem("refreshToken");
-//         localStorage.removeItem("user");
-
-//         if (
-//           !window.location.pathname.startsWith("/login") &&
-//           !window.location.pathname.startsWith("/register")
-//         ) {
-//           window.location.href = "/login";
-//         }
-
-//         return Promise.reject(err);
-
-//       } finally {
-//         isRefreshing = false;
-//       }
-//     }
-
-//     return Promise.reject(error);
-//   }
-// );
-
-// export default api;
-
-import axios from 'axios';
-
-const API_URL = process.env.REACT_APP_API_URL || 'https://your-app.onrender.com';
-
 const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
+  baseURL: BASE_URL,
+  timeout: 60000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
-// ✅ Add access token to every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
-  
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  
-  config.withCredentials = true;
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+ 
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve(token);
+    }
+  });
 
-// ✅ Handle 401 and refresh token
+  failedQueue = [];
+};
+
+  
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+ 
 api.interceptors.response.use(
   (response) => response,
+
   async (error) => {
     const originalRequest = error.config;
+ 
+    if (originalRequest.url.includes("/auth/refresh")) {
+      return Promise.reject(error);
+    }
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+
+       
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then((token) => {
+          originalRequest.headers.Authorization =
+            "Bearer " + token;
+
+          return api(originalRequest);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
+
+        const refreshToken =
+          localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
-          throw new Error('No refresh token');
+          throw new Error("Refresh token missing");
         }
 
+       
         const response = await axios.post(
-          `${API_URL}/auth/refresh-token`,
-          {},
+          `${BASE_URL}/auth/refresh`,
           {
-            headers: {
-              Authorization: `Bearer ${refreshToken}`,
-            },
+            refreshToken,
           }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+        const tokens = response.data.data;
 
-        // ✅ Update tokens
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', newRefreshToken);
-        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+         
+        localStorage.setItem(
+          "accessToken",
+          tokens.accessToken
+        );
 
-        // ✅ Retry original request
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        if (tokens.refreshToken) {
+          localStorage.setItem(
+            "refreshToken",
+            tokens.refreshToken
+          );
+        }
+
+        
+        processQueue(null, tokens.accessToken);
+
+         
+        originalRequest.headers.Authorization =
+          "Bearer " + tokens.accessToken;
+
         return api(originalRequest);
 
-      } catch (refreshError) {
-        // ✅ Token refresh failed, logout
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('userId');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
+      } catch (err) {
 
-    // ✅ Clear cache on 304
-    if (error.response?.status === 304) {
-      window.location.reload();
+        processQueue(err, null);
+
+        
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+
+        if (
+          !window.location.pathname.startsWith("/login") &&
+          !window.location.pathname.startsWith("/register")
+        ) {
+          window.location.href = "/login";
+        }
+
+        return Promise.reject(err);
+
+      } finally {
+        isRefreshing = false;
+      }
     }
 
     return Promise.reject(error);
